@@ -9,7 +9,9 @@
  */
 
 
-function extractLocalizationStrings($directory)
+
+
+function extractLocalizationStrings($directory, $moduleName)
 {
     // Get all files recursively in the specified directory
     $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory));
@@ -28,10 +30,8 @@ function extractLocalizationStrings($directory)
         $contents = file_get_contents($file->getPathname());
 
         // Extract localization strings using regular expression pattern
-        preg_match_all('/__\([\'"](.+?)[\'"]\)/', $contents, $matches); // ignore *. texts
-
-        // preg_match_all('/__\([\'"]([^\'"]+)[\'"]\)/', $contents, $matches); // get all texts
-
+        // preg_match_all('/__\([\'"](.+?)[\'"]\)/', $contents, $matches);
+        preg_match_all('/__\([\'"]([^\'"]+)[\'"]\)/', $contents, $matches);
         // If any localization strings are found, store them in the array
         if (!empty($matches[1])) {
             foreach ($matches[1] as $match) {
@@ -44,8 +44,23 @@ function extractLocalizationStrings($directory)
     $phpArray = "<?php\n\nreturn " . var_export($localizationStrings, true) . ";\n";
 
     // Write the PHP code to a file named 'localization_strings.php'
-    file_put_contents('localization_strings.php', $phpArray);
+    file_put_contents($moduleName . '-localization_strings.php', $phpArray);
 }
 
+$modules = \Nwidart\Modules\Facades\Module::all();
 
-// extractLocalizationStrings(resource_path('views'));
+// Loop through the modules
+foreach ($modules as $module) {
+    $moduleName = $module->getName();
+    $modulePath = $module->getPath();
+    $moduleResourcePath = '';
+
+    $resouncePath = $modulePath . '/resources/views';
+    if (is_dir($resouncePath)) {
+        $moduleResourcePath = $resouncePath;
+    }
+
+    extractLocalizationStrings($moduleResourcePath, $moduleName);
+}
+
+return;
