@@ -28,7 +28,9 @@ function extractLocalizationStrings($directory)
         $contents = file_get_contents($file->getPathname());
 
         // Extract localization strings using regular expression pattern
-        preg_match_all('/__\([\'"](.+?)[\'"]\)/', $contents, $matches);
+        preg_match_all('/__\([\'"](.+?)[\'"]\)/', $contents, $matches); // ignore *. texts
+
+        // preg_match_all('/__\([\'"]([^\'"]+)[\'"]\)/', $contents, $matches); // get all texts
 
         // If any localization strings are found, store them in the array
         if (!empty($matches[1])) {
